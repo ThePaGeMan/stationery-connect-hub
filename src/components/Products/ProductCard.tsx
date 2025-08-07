@@ -17,7 +17,7 @@ interface Product {
 interface ProductCardProps {
   product: Product;
   onEdit: (product: Product) => void;
-  onDelete: (id: string) => void;
+  onDelete: () => void;
   onShare: (product: Product) => void;
 }
 
@@ -62,7 +62,7 @@ const ProductCard = ({ product, onEdit, onDelete, onShare }: ProductCardProps) =
               <Share2 className="h-3 w-3 mr-1" />
               Share
             </Button>
-            <Button variant="destructive" size="sm" onClick={() => onDelete(product.id)}>
+            <Button variant="destructive" size="sm" onClick={onDelete}>
               <Trash2 className="h-3 w-3" />
             </Button>
           </div>

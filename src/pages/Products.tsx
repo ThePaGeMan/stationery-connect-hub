@@ -1,11 +1,14 @@
 import { useState } from "react";
-import { Plus, Filter, Search, Grid, List, Package } from "lucide-react";
+import { Plus, Filter, Search, Grid, List, Package, Edit, Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import ProductCard from "@/components/Products/ProductCard";
+import ProductForm from "@/components/Forms/ProductForm";
 import { mockProducts, type Product } from "@/data/mockData";
 import { useToast } from "@/hooks/use-toast";
 
@@ -14,6 +17,9 @@ const Products = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
   const { toast } = useToast();
 
   const categories = ["all", ...Array.from(new Set(mockProducts.map(p => p.category)))];
@@ -26,19 +32,24 @@ const Products = () => {
   });
 
   const handleEditProduct = (product: Product) => {
-    toast({
-      title: "Edit Product",
-      description: `Editing ${product.name}`,
-    });
+    setEditingProduct(product);
+    setIsFormOpen(true);
   };
 
-  const handleDeleteProduct = (id: string) => {
-    setProducts(products.filter(p => p.id !== id));
-    toast({
-      title: "Product Deleted",
-      description: "Product has been removed from inventory",
-      variant: "destructive",
-    });
+  const handleDeleteProduct = (product: Product) => {
+    setDeletingProduct(product);
+  };
+
+  const confirmDelete = () => {
+    if (deletingProduct) {
+      setProducts(products.filter(p => p.id !== deletingProduct.id));
+      toast({
+        title: "Product Deleted",
+        description: `${deletingProduct.name} has been removed from inventory`,
+        variant: "destructive",
+      });
+      setDeletingProduct(null);
+    }
   };
 
   const handleShareProduct = (product: Product) => {
@@ -49,10 +60,45 @@ const Products = () => {
   };
 
   const handleAddProduct = () => {
-    toast({
-      title: "Add New Product",
-      description: "Opening product creation form",
-    });
+    setEditingProduct(null);
+    setIsFormOpen(true);
+  };
+
+  const handleFormSubmit = (productData: Partial<Product>) => {
+    if (editingProduct) {
+      // Update existing product
+      setProducts(products.map(p => 
+        p.id === editingProduct.id ? { ...editingProduct, ...productData } : p
+      ));
+      toast({
+        title: "Product Updated",
+        description: `${productData.name} has been updated successfully`,
+      });
+    } else {
+      // Add new product
+      const newProduct: Product = {
+        id: Date.now().toString(),
+        name: productData.name!,
+        category: productData.category!,
+        price: productData.price!,
+        image: productData.image || "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=300&h=300&fit=crop",
+        tags: productData.tags || [],
+        stock: productData.stock!,
+        inStock: productData.inStock ?? true,
+      };
+      setProducts([...products, newProduct]);
+      toast({
+        title: "Product Added",
+        description: `${productData.name} has been added to inventory`,
+      });
+    }
+    setIsFormOpen(false);
+    setEditingProduct(null);
+  };
+
+  const handleFormCancel = () => {
+    setIsFormOpen(false);
+    setEditingProduct(null);
   };
 
   return (
@@ -157,7 +203,7 @@ const Products = () => {
               key={product.id}
               product={product}
               onEdit={handleEditProduct}
-              onDelete={handleDeleteProduct}
+              onDelete={() => handleDeleteProduct(product)}
               onShare={handleShareProduct}
             />
           ))}
@@ -173,6 +219,35 @@ const Products = () => {
           </CardContent>
         </Card>
       )}
+
+      {/* Product Form Dialog */}
+      <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <ProductForm
+            product={editingProduct || undefined}
+            onSubmit={handleFormSubmit}
+            onCancel={handleFormCancel}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deletingProduct} onOpenChange={() => setDeletingProduct(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Product</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{deletingProduct?.name}"? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

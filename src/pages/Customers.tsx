@@ -1,12 +1,15 @@
 import { useState } from "react";
-import { Plus, Phone, MapPin, Filter, Search, Users } from "lucide-react";
+import { Plus, Phone, MapPin, Filter, Search, Users, Edit, Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { DataTable } from "@/components/ui/data-table";
+import CustomerForm from "@/components/Forms/CustomerForm";
 import { mockCustomers, type Customer } from "@/data/mockData";
 import { useToast } from "@/hooks/use-toast";
 import { ColumnDef } from "@tanstack/react-table";
@@ -16,6 +19,9 @@ const Customers = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [groupFilter, setGroupFilter] = useState("all");
   const [selectedCustomers, setSelectedCustomers] = useState<string[]>([]);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
+  const [deletingCustomer, setDeletingCustomer] = useState<Customer | null>(null);
   const { toast } = useToast();
 
   const groups = ["all", ...Array.from(new Set(mockCustomers.map(c => c.group)))];
@@ -57,6 +63,69 @@ const Customers = () => {
       title: "WhatsApp Blast",
       description: `Preparing to send message to ${selectedCustomers.length} customers`,
     });
+  };
+
+  const handleAddCustomer = () => {
+    setEditingCustomer(null);
+    setIsFormOpen(true);
+  };
+
+  const handleEditCustomer = (customer: Customer) => {
+    setEditingCustomer(customer);
+    setIsFormOpen(true);
+  };
+
+  const handleDeleteCustomer = (customer: Customer) => {
+    setDeletingCustomer(customer);
+  };
+
+  const confirmDelete = () => {
+    if (deletingCustomer) {
+      setCustomers(customers.filter(c => c.id !== deletingCustomer.id));
+      toast({
+        title: "Customer Deleted",
+        description: `${deletingCustomer.name} has been removed from your customers`,
+        variant: "destructive",
+      });
+      setDeletingCustomer(null);
+    }
+  };
+
+  const handleFormSubmit = (customerData: Partial<Customer>) => {
+    if (editingCustomer) {
+      // Update existing customer
+      setCustomers(customers.map(c => 
+        c.id === editingCustomer.id ? { ...editingCustomer, ...customerData } : c
+      ));
+      toast({
+        title: "Customer Updated",
+        description: `${customerData.name} has been updated successfully`,
+      });
+    } else {
+      // Add new customer
+      const newCustomer: Customer = {
+        id: Date.now().toString(),
+        name: customerData.name!,
+        location: customerData.location!,
+        budget: customerData.budget!,
+        interests: customerData.interests || [],
+        whatsappNumber: customerData.whatsappNumber!,
+        group: customerData.group!,
+        lastContact: customerData.lastContact!,
+      };
+      setCustomers([...customers, newCustomer]);
+      toast({
+        title: "Customer Added",
+        description: `${customerData.name} has been added to your customers`,
+      });
+    }
+    setIsFormOpen(false);
+    setEditingCustomer(null);
+  };
+
+  const handleFormCancel = () => {
+    setIsFormOpen(false);
+    setEditingCustomer(null);
   };
 
   const columns: ColumnDef<Customer>[] = [
@@ -145,6 +214,28 @@ const Customers = () => {
         </div>
       ),
     },
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => (
+        <div className="flex gap-1">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleEditCustomer(row.original)}
+          >
+            <Edit className="h-3 w-3" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleDeleteCustomer(row.original)}
+          >
+            <Trash className="h-3 w-3" />
+          </Button>
+        </div>
+      ),
+    },
   ];
 
   return (
@@ -162,7 +253,7 @@ const Customers = () => {
               Send to {selectedCustomers.length}
             </Button>
           )}
-          <Button className="w-full sm:w-auto">
+          <Button onClick={handleAddCustomer} className="w-full sm:w-auto">
             <Plus className="h-4 w-4 mr-2" />
             Add Customer
           </Button>
@@ -255,6 +346,35 @@ const Customers = () => {
           </CardContent>
         </Card>
       )}
+
+      {/* Customer Form Dialog */}
+      <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <CustomerForm
+            customer={editingCustomer || undefined}
+            onSubmit={handleFormSubmit}
+            onCancel={handleFormCancel}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deletingCustomer} onOpenChange={() => setDeletingCustomer(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Customer</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{deletingCustomer?.name}"? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
