@@ -1,4 +1,4 @@
-import { Bell, User, ChevronDown } from "lucide-react";
+import { Bell, User, ChevronDown, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -7,6 +7,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface HeaderProps {
   activeTab: string;
@@ -14,6 +15,7 @@ interface HeaderProps {
 }
 
 const Header = ({ activeTab, onTabChange }: HeaderProps) => {
+  const { user, logout } = useAuth();
   const tabs = [
     { id: "dashboard", label: "Dashboard" },
     { id: "products", label: "Products" },
@@ -56,15 +58,26 @@ const Header = ({ activeTab, onTabChange }: HeaderProps) => {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="flex items-center space-x-2">
                   <User className="h-4 w-4" />
-                  <span className="hidden sm:inline">John Doe</span>
+                  <span className="hidden sm:inline">{user?.name}</span>
                   <ChevronDown className="h-3 w-3" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem disabled>
+                  <User className="mr-2 h-4 w-4" />
+                  {user?.email}
+                </DropdownMenuItem>
+                <DropdownMenuItem disabled>
+                  Role: {user?.role}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem>Profile Settings</DropdownMenuItem>
                 <DropdownMenuItem>Company Settings</DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-destructive">Logout</DropdownMenuItem>
+                <DropdownMenuItem onClick={logout} className="text-destructive">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Logout
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
