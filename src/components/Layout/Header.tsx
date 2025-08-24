@@ -7,7 +7,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/contexts/auth-context.tsx";
 
 interface HeaderProps {
   activeTab: string;
@@ -58,21 +58,18 @@ const Header = ({ activeTab, onTabChange }: HeaderProps) => {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="flex items-center space-x-2">
                   <User className="h-4 w-4" />
-                  <span className="hidden sm:inline">{user?.name}</span>
+                  <span className="hidden sm:inline">{user?.email?.split('@')[0].toLowerCase()}</span>
                   <ChevronDown className="h-3 w-3" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
                 <DropdownMenuItem disabled>
                   <User className="mr-2 h-4 w-4" />
-                  {user?.email}
+                  {user?.email?.split('@')[0].toUpperCase()}
                 </DropdownMenuItem>
                 <DropdownMenuItem disabled>
                   Role: {user?.role}
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>Profile Settings</DropdownMenuItem>
-                <DropdownMenuItem>Company Settings</DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={logout} className="text-destructive">
                   <LogOut className="mr-2 h-4 w-4" />

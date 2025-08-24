@@ -162,8 +162,8 @@ const WhatsAppBlast = () => {
                       <div className="font-medium">{product.name}</div>
                       <div className="text-sm text-muted-foreground">₹{product.price}</div>
                     </div>
-                    <Badge variant={product.inStock ? "default" : "destructive"}>
-                      {product.inStock ? "In Stock" : "Out of Stock"}
+                    <Badge variant={product.in_stock ? "default" : "destructive"}>
+                      {product.in_stock ? "In Stock" : "Out of Stock"}
                     </Badge>
                   </div>
                 ))}

@@ -10,23 +10,29 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { DataTable } from "@/components/ui/data-table";
 import CustomerForm from "@/components/Forms/CustomerForm";
-import { mockCustomers, type Customer } from "@/data/mockData";
+import {type Customer} from '@/types/auth.ts'
 import { useToast } from "@/hooks/use-toast";
 import { ColumnDef } from "@tanstack/react-table";
+import {supabase} from "@/lib/supabase_client.ts";
+import {useAuth} from "@/contexts/auth-context.tsx";
+import {useApp} from "@/contexts/app-provider.tsx";
+import {DeleteAlert} from "@/components/delete-alert/delete-alert.tsx";
 
 const Customers = () => {
-  const [customers, setCustomers] = useState<Customer[]>(mockCustomers);
+  const { user } = useAuth();
+  const { customerDetails, loading, fetchCustomers} = useApp();
   const [searchTerm, setSearchTerm] = useState("");
   const [groupFilter, setGroupFilter] = useState("all");
   const [selectedCustomers, setSelectedCustomers] = useState<string[]>([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   const [deletingCustomer, setDeletingCustomer] = useState<Customer | null>(null);
+  const [localLoading, setLocalLoading] = useState(false);
   const { toast } = useToast();
 
-  const groups = ["all", ...Array.from(new Set(mockCustomers.map(c => c.group)))];
+  const groups = ["all", ...Array.from(new Set(customerDetails.map(c => c.group)))];
 
-  const filteredCustomers = customers.filter(customer => {
+  const filteredCustomers = customerDetails.filter(customer => {
     const matchesSearch = customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          customer.location.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesGroup = groupFilter === "all" || customer.group === groupFilter;
@@ -79,48 +85,98 @@ const Customers = () => {
     setDeletingCustomer(customer);
   };
 
-  const confirmDelete = () => {
-    if (deletingCustomer) {
-      setCustomers(customers.filter(c => c.id !== deletingCustomer.id));
+  const confirmDelete = async () => {
+    if(!selectedCustomers) return;
+    setLocalLoading(true);
+    try{
+      if (deletingCustomer) {
+        await supabase.from("customers").delete().eq("id", deletingCustomer.id);
+        await fetchCustomers();
+        toast({
+          title: "Customer Deleted",
+          description: `${deletingCustomer.name} has been removed from your customers`,
+          variant: "destructive",
+        });
+        setDeletingCustomer(null);
+      }
+    } catch (error){
       toast({
-        title: "Customer Deleted",
-        description: `${deletingCustomer.name} has been removed from your customers`,
+        title: 'Error in Deleting Customer',
+        description: error.message,
         variant: "destructive",
-      });
-      setDeletingCustomer(null);
+      })
+    }finally {
+      setLocalLoading(false);
     }
   };
 
-  const handleFormSubmit = (customerData: Partial<Customer>) => {
-    if (editingCustomer) {
-      // Update existing customer
-      setCustomers(customers.map(c => 
-        c.id === editingCustomer.id ? { ...editingCustomer, ...customerData } : c
-      ));
+  const handleFormSubmit = async (customerData: Partial<Customer>) => {
+      setLocalLoading(true);
+    try{
+      if (editingCustomer) {
+        // Update existing customer
+        const { error } = await supabase
+            .from('customers')
+            .update({
+              name: customerData.name,
+              location: customerData.location,
+              budget: customerData.budget,
+              interests: customerData.interests,
+              whatsapp_number: customerData.whatsapp_number,
+              group: customerData.group,
+              last_contact: customerData.last_contact,
+            })
+            .eq('id', editingCustomer.id)
+            .eq('created_by', editingCustomer.created_by)
+
+        if(error) throw error;
+
+        await fetchCustomers();
+        toast({
+          title: "Customer Updated",
+          description: `${customerData.name} has been updated successfully`,
+        });
+      } else {
+        // Add new customer
+        const { error } = await supabase
+            .from("customers")
+            .insert([
+              {
+                name: customerData.name,
+                location: customerData.location,
+                budget: customerData.budget,
+                interests: customerData.interests,
+                whatsapp_number: customerData.whatsapp_number,
+                group: customerData.group,
+                last_contact: customerData.last_contact,
+                created_by: user?.id, // attach logged-in user
+              },
+            ])
+            .select()
+            .single();
+
+        if(error) throw error;
+
+        await fetchCustomers();
+
+        toast({
+          title: "Customer Added",
+          description: `${customerData.name} has been added to your customers`,
+        });
+      }
+      setIsFormOpen(false);
+      setEditingCustomer(null);
+    } catch (err: any){
+      console.error('Error saving customer', err.message);
       toast({
-        title: "Customer Updated",
-        description: `${customerData.name} has been updated successfully`,
+        title: "Error",
+        description: err.message,
+        variant: "destructive",
       });
-    } else {
-      // Add new customer
-      const newCustomer: Customer = {
-        id: Date.now().toString(),
-        name: customerData.name!,
-        location: customerData.location!,
-        budget: customerData.budget!,
-        interests: customerData.interests || [],
-        whatsappNumber: customerData.whatsappNumber!,
-        group: customerData.group!,
-        lastContact: customerData.lastContact!,
-      };
-      setCustomers([...customers, newCustomer]);
-      toast({
-        title: "Customer Added",
-        description: `${customerData.name} has been added to your customers`,
-      });
+    } finally {
+      setLocalLoading(false);
     }
-    setIsFormOpen(false);
-    setEditingCustomer(null);
+
   };
 
   const handleFormCancel = () => {
@@ -196,21 +252,21 @@ const Customers = () => {
       ),
     },
     {
-      accessorKey: "whatsappNumber",
+      accessorKey: "whatsapp_number",
       header: "WhatsApp",
       cell: ({ row }) => (
         <div className="flex items-center">
           <Phone className="h-3 w-3 mr-2 text-success" />
-          <span className="text-sm">{row.original.whatsappNumber}</span>
+          <span className="text-sm">{row.original.whatsapp_number}</span>
         </div>
       ),
     },
     {
-      accessorKey: "lastContact",
+      accessorKey: "last_contact",
       header: "Last Contact",
       cell: ({ row }) => (
         <div className="text-sm text-muted-foreground">
-          {new Date(row.original.lastContact).toLocaleDateString()}
+          {new Date(row.original.last_contact).toLocaleDateString()}
         </div>
       ),
     },
@@ -237,6 +293,7 @@ const Customers = () => {
       ),
     },
   ];
+
 
   return (
     <div className="space-y-6">
@@ -324,7 +381,7 @@ const Customers = () => {
       </Card>
 
       {/* Customers Table */}
-      {filteredCustomers.length > 0 ? (
+      {filteredCustomers.length > 0 || loading ? (
         <Card>
           <CardContent className="p-6">
             <DataTable
@@ -354,27 +411,21 @@ const Customers = () => {
             customer={editingCustomer || undefined}
             onSubmit={handleFormSubmit}
             onCancel={handleFormCancel}
+            loading={localLoading}
           />
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={!!deletingCustomer} onOpenChange={() => setDeletingCustomer(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Customer</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete "{deletingCustomer?.name}"? This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteAlert
+          open={!!deletingCustomer}
+          title="Delete Customer"
+          description={`Are you sure you want to delete "${deletingCustomer?.name}"? This action cannot be undone.`}
+          confirmText="Delete"
+          cancelText="Cancel"
+          onConfirm={confirmDelete}
+          onClose={() => setDeletingCustomer(null)}
+      />
+
     </div>
   );
 };

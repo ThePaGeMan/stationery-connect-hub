@@ -25,7 +25,7 @@ const ProductForm = ({ product, onSubmit, onCancel }: ProductFormProps) => {
     price: product?.price || 0,
     image: product?.image || "",
     stock: product?.stock || 0,
-    inStock: product?.inStock ?? true,
+    inStock: product?.in_stock ?? true,
     tags: product?.tags || [],
   });
   const [newTag, setNewTag] = useState("");

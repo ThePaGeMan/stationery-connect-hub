@@ -8,7 +8,7 @@ export interface Product {
   image: string;
   tags: string[];
   stock: number;
-  inStock: boolean;
+  in_stock: boolean;
 }
 
 export interface Customer {
@@ -48,7 +48,7 @@ export const mockProducts: Product[] = [
     image: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=300&h=300&fit=crop",
     tags: ["school", "premium", "bulk"],
     stock: 150,
-    inStock: true,
+    in_stock: true,
   },
   {
     id: "2",
@@ -58,7 +58,7 @@ export const mockProducts: Product[] = [
     image: "https://images.unsplash.com/photo-1606092195730-5d7b9af1efc5?w=300&h=300&fit=crop",
     tags: ["office", "writing", "bulk"],
     stock: 0,
-    inStock: false,
+    in_stock: false,
   },
   {
     id: "3",
@@ -68,7 +68,7 @@ export const mockProducts: Product[] = [
     image: "https://images.unsplash.com/photo-1586281010923-cf0c1739bbc5?w=300&h=300&fit=crop",
     tags: ["office", "printing", "bulk"],
     stock: 75,
-    inStock: true,
+    in_stock: true,
   },
   {
     id: "4",
@@ -78,7 +78,7 @@ export const mockProducts: Product[] = [
     image: "https://images.unsplash.com/photo-1516486927352-e99b70933faa?w=300&h=300&fit=crop",
     tags: ["school", "office", "colorful"],
     stock: 200,
-    inStock: true,
+    in_stock: true,
   },
   {
     id: "5",
@@ -88,7 +88,7 @@ export const mockProducts: Product[] = [
     image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&h=300&fit=crop",
     tags: ["premium", "office", "planning"],
     stock: 45,
-    inStock: true,
+    in_stock: true,
   },
   {
     id: "6",
@@ -98,7 +98,7 @@ export const mockProducts: Product[] = [
     image: "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=300&h=300&fit=crop",
     tags: ["school", "kids", "combo"],
     stock: 90,
-    inStock: true,
+    in_stock: true,
   },
 ];
 
@@ -109,9 +109,9 @@ export const mockCustomers: Customer[] = [
     location: "Mumbai, Maharashtra",
     budget: 25000,
     interests: ["school", "office", "premium"],
-    whatsappNumber: "+91 98765 43210",
+    whatsapp_number: "+91 98765 43210",
     group: "Premium",
-    lastContact: "2024-01-15",
+    last_contact: "2024-01-15",
   },
   {
     id: "2",
@@ -119,9 +119,9 @@ export const mockCustomers: Customer[] = [
     location: "Ahmedabad, Gujarat",
     budget: 15000,
     interests: ["school", "kids", "bulk"],
-    whatsappNumber: "+91 87654 32109",
+    whatsapp_number: "+91 87654 32109",
     group: "Budget Buyers",
-    lastContact: "2024-01-10",
+    last_contact: "2024-01-10",
   },
   {
     id: "3",
@@ -129,9 +129,9 @@ export const mockCustomers: Customer[] = [
     location: "Bangalore, Karnataka",
     budget: 40000,
     interests: ["office", "premium", "printing"],
-    whatsappNumber: "+91 76543 21098",
+    whatsapp_number: "+91 76543 21098",
     group: "Premium",
-    lastContact: "2024-01-12",
+    last_contact: "2024-01-12",
   },
   {
     id: "4",
@@ -139,9 +139,9 @@ export const mockCustomers: Customer[] = [
     location: "Nashik, Maharashtra",
     budget: 8000,
     interests: ["school", "rural", "affordable"],
-    whatsappNumber: "+91 65432 10987",
+    whatsapp_number: "+91 65432 10987",
     group: "Rural",
-    lastContact: "2024-01-08",
+    last_contact: "2024-01-08",
   },
   {
     id: "5",
@@ -149,9 +149,9 @@ export const mockCustomers: Customer[] = [
     location: "Delhi, NCR",
     budget: 30000,
     interests: ["office", "bulk", "premium"],
-    whatsappNumber: "+91 54321 09876",
+    whatsapp_number: "+91 54321 09876",
     group: "Premium",
-    lastContact: "2024-01-14",
+    last_contact: "2024-01-14",
   },
 ];
 

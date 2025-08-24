@@ -4,27 +4,30 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { X } from "lucide-react";
+import {Save, X} from "lucide-react";
 import { DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { type Customer } from "@/data/mockData";
+import { type Customer } from "@/types/auth";
+import {useAuth} from "@/contexts/auth-context.tsx";
 
 interface CustomerFormProps {
   customer?: Customer;
   onSubmit: (customer: Partial<Customer>) => void;
   onCancel: () => void;
+  loading: boolean;
 }
 
 const groups: Customer["group"][] = ["Premium", "Rural", "Budget Buyers"];
 
-const CustomerForm = ({ customer, onSubmit, onCancel }: CustomerFormProps) => {
+const CustomerForm = ({ customer, onSubmit, onCancel , loading}: CustomerFormProps) => {
+  const { user } = useAuth();
   const [formData, setFormData] = useState({
     name: customer?.name || "",
     location: customer?.location || "",
     budget: customer?.budget || 0,
-    whatsappNumber: customer?.whatsappNumber || "",
+    whatsapp_number: customer?.whatsapp_number || "",
     group: customer?.group || "Budget Buyers" as Customer["group"],
     interests: customer?.interests || [],
-    lastContact: customer?.lastContact || new Date().toISOString().split('T')[0],
+    last_contact: customer?.last_contact || new Date().toISOString().split('T')[0],
   });
   const [newInterest, setNewInterest] = useState("");
 
@@ -32,7 +35,7 @@ const CustomerForm = ({ customer, onSubmit, onCancel }: CustomerFormProps) => {
     e.preventDefault();
     onSubmit({
       ...formData,
-      id: customer?.id || Date.now().toString(),
+      created_by: user?.id,
     });
   };
 
@@ -53,12 +56,7 @@ const CustomerForm = ({ customer, onSubmit, onCancel }: CustomerFormProps) => {
     }));
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      addInterest();
-    }
-  };
+
 
   return (
     <div className="space-y-6">
@@ -133,8 +131,8 @@ const CustomerForm = ({ customer, onSubmit, onCancel }: CustomerFormProps) => {
             <Label htmlFor="whatsappNumber">WhatsApp Number</Label>
             <Input
               id="whatsappNumber"
-              value={formData.whatsappNumber}
-              onChange={(e) => setFormData(prev => ({ ...prev, whatsappNumber: e.target.value }))}
+              value={formData.whatsapp_number}
+              onChange={(e) => setFormData(prev => ({ ...prev, whatsapp_number: e.target.value }))}
               placeholder="+91 XXXXX XXXXX"
               required
             />
@@ -145,8 +143,8 @@ const CustomerForm = ({ customer, onSubmit, onCancel }: CustomerFormProps) => {
             <Input
               id="lastContact"
               type="date"
-              value={formData.lastContact}
-              onChange={(e) => setFormData(prev => ({ ...prev, lastContact: e.target.value }))}
+              value={formData.last_contact}
+              onChange={(e) => setFormData(prev => ({ ...prev, last_contact: e.target.value }))}
               required
             />
           </div>
@@ -158,8 +156,12 @@ const CustomerForm = ({ customer, onSubmit, onCancel }: CustomerFormProps) => {
           <div className="flex gap-2">
             <Input
               value={newInterest}
-              onChange={(e) => setNewInterest(e.target.value)}
-              onKeyPress={handleKeyPress}
+              onChange={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setNewInterest(e.target.value)
+              }}
+
               placeholder="Add an interest (e.g., school, office, premium)"
               className="flex-1"
             />
@@ -185,6 +187,11 @@ const CustomerForm = ({ customer, onSubmit, onCancel }: CustomerFormProps) => {
         {/* Form Actions */}
         <div className="flex flex-col sm:flex-row gap-2 pt-4">
           <Button type="submit" className="flex-1">
+            {loading ? (
+                <span className="animate-spin h-4 w-4 border-2 border-t-transparent border-white rounded-full mr-2" />
+            ) : (
+                <Save className="h-4 w-4 mr-2" />
+            )}
             {customer ? "Update Customer" : "Add Customer"}
           </Button>
           <Button type="button" variant="outline" onClick={onCancel} className="flex-1">

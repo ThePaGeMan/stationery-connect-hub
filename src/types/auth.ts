@@ -2,10 +2,7 @@ export interface User {
   id: string;
   email: string;
   name: string;
-  role: 'admin' | 'user' | 'manager';
-  companyId: string;
-  createdAt: string;
-  updatedAt: string;
+  company_id: string;
 }
 
 export interface AuthState {
@@ -22,8 +19,6 @@ export interface LoginCredentials {
 export interface SignupCredentials {
   email: string;
   password: string;
-  name: string;
-  role?: 'admin' | 'user' | 'manager';
 }
 
 export interface AuthResponse {
@@ -38,8 +33,6 @@ export interface Company {
   email: string;
   phone: string;
   address: string;
-  createdAt: string;
-  updatedAt: string;
 }
 
 // Product DTO with RLS fields
@@ -50,23 +43,21 @@ export interface Product {
   price: number;
   stock: number;
   category: string;
-  companyId: string; // RLS field
-  createdBy: string; // RLS field
-  createdAt: string;
-  updatedAt: string;
+  company_id: string; // RLS field
+  created_by: string; // RLS field
 }
 
 // Customer DTO with RLS fields
 export interface Customer {
-  id: string;
+  id?: string;
   name: string;
-  email: string;
-  phone: string;
-  address: string;
-  companyId: string; // RLS field
-  createdBy: string; // RLS field
-  createdAt: string;
-  updatedAt: string;
+  location: string;
+  budget: number;
+  interests: string[];
+  whatsapp_number: string;
+  group: "Premium" | "Rural" | "Budget Buyers";
+  last_contact: string;
+  created_by: string; // RLS field
 }
 
 // WhatsApp Blast DTO with RLS fields
@@ -76,10 +67,8 @@ export interface WhatsAppBlast {
   message: string;
   recipients: string[];
   status: 'draft' | 'sent' | 'scheduled';
-  scheduledAt?: string;
-  sentAt?: string;
-  companyId: string; // RLS field
-  createdBy: string; // RLS field
-  createdAt: string;
-  updatedAt: string;
+  scheduled_at?: string;
+  sent_at?: string;
+  company_id: string; // RLS field
+  created_by: string; // RLS field
 }

@@ -7,7 +7,7 @@ import { User } from '@/types/auth';
 
 // Check if user can access data from their company
 export const canAccessCompanyData = (user: User, dataCompanyId: string): boolean => {
-  return user.companyId === dataCompanyId;
+  return user.company_id === dataCompanyId;
 };
 
 // Check if user can read specific resource
@@ -72,7 +72,7 @@ export const filterByRLS = <T extends { companyId: string; createdBy?: string }>
 export const addRLSMetadata = (user: User, data: any) => {
   return {
     ...data,
-    companyId: user.companyId,
+    companyId: user.company_id,
     createdBy: user.id,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),

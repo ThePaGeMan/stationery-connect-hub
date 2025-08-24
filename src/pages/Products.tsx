@@ -84,7 +84,7 @@ const Products = () => {
         image: productData.image || "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=300&h=300&fit=crop",
         tags: productData.tags || [],
         stock: productData.stock!,
-        inStock: productData.inStock ?? true,
+        in_stock: productData.in_stock ?? true,
       };
       setProducts([...products, newProduct]);
       toast({
@@ -171,7 +171,7 @@ const Products = () => {
         <Card>
           <CardContent className="p-4 text-center">
             <div className="text-2xl font-bold text-success">
-              {filteredProducts.filter(p => p.inStock).length}
+              {filteredProducts.filter(p => p.in_stock).length}
             </div>
             <div className="text-sm text-muted-foreground">In Stock</div>
           </CardContent>
@@ -179,7 +179,7 @@ const Products = () => {
         <Card>
           <CardContent className="p-4 text-center">
             <div className="text-2xl font-bold text-destructive">
-              {filteredProducts.filter(p => !p.inStock).length}
+              {filteredProducts.filter(p => !p.in_stock).length}
             </div>
             <div className="text-sm text-muted-foreground">Out of Stock</div>
           </CardContent>
