@@ -3,16 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Edit, Trash2, Share2 } from "lucide-react";
 
-interface Product {
-  id: string;
-  name: string;
-  category: string;
-  price: number;
-  image: string;
-  tags: string[];
-  stock: number;
-  inStock: boolean;
-}
+import { type Product } from "@/types/auth";
 
 interface ProductCardProps {
   product: Product;
@@ -40,8 +31,8 @@ const ProductCard = ({ product, onEdit, onDelete, onShare }: ProductCardProps) =
           
           <div className="flex items-center justify-between">
             <span className="text-lg font-bold text-foreground">₹{product.price}</span>
-            <Badge variant={product.inStock ? "default" : "destructive"} className="text-xs">
-              {product.inStock ? `${product.stock} in stock` : 'Out of stock'}
+            <Badge variant={product.in_stock ? "default" : "destructive"} className="text-xs">
+              {product.in_stock ? `${product.stock} in stock` : 'Out of stock'}
             </Badge>
           </div>
 

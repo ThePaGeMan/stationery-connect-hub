@@ -8,7 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
 import { DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { type Product } from "@/data/mockData";
+import { type Product } from "@/types/auth";
 
 interface ProductFormProps {
   product?: Product;
@@ -34,6 +34,7 @@ const ProductForm = ({ product, onSubmit, onCancel }: ProductFormProps) => {
     e.preventDefault();
     onSubmit({
       ...formData,
+      in_stock: formData.inStock,
       id: product?.id || Date.now().toString(),
     });
   };
@@ -131,14 +132,24 @@ const ProductForm = ({ product, onSubmit, onCancel }: ProductFormProps) => {
           </div>
         </div>
 
-        {/* Image URL */}
+        {/* Image Upload */}
         <div className="space-y-2">
-          <Label htmlFor="image">Image URL</Label>
+          <Label htmlFor="image">Product Image</Label>
           <Input
             id="image"
-            value={formData.image}
-            onChange={(e) => setFormData(prev => ({ ...prev, image: e.target.value }))}
-            placeholder="Enter image URL"
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                  setFormData(prev => ({ ...prev, image: event.target?.result as string }));
+                };
+                reader.readAsDataURL(file);
+              }
+            }}
+            className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
           />
           {formData.image && (
             <div className="mt-2">

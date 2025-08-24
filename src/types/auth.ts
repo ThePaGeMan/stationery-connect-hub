@@ -3,6 +3,7 @@ export interface User {
   email: string;
   name: string;
   company_id: string;
+  role: 'admin' | 'manager' | 'user';
 }
 
 export interface AuthState {
@@ -39,10 +40,12 @@ export interface Company {
 export interface Product {
   id: string;
   name: string;
-  description: string;
-  price: number;
-  stock: number;
   category: string;
+  price: number;
+  image: string;
+  tags: string[];
+  stock: number;
+  in_stock: boolean;
   company_id: string; // RLS field
   created_by: string; // RLS field
 }
@@ -54,9 +57,9 @@ export interface Customer {
   location: string;
   budget: number;
   interests: string[];
-  whatsapp_number: string;
+  whatsappNumber: string;
   group: "Premium" | "Rural" | "Budget Buyers";
-  last_contact: string;
+  lastContact: string;
   created_by: string; // RLS field
 }
 

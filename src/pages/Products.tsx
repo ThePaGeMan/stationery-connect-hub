@@ -9,11 +9,18 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import ProductCard from "@/components/Products/ProductCard";
 import ProductForm from "@/components/Forms/ProductForm";
-import { mockProducts, type Product } from "@/data/mockData";
+import { mockProducts } from "@/data/mockData";
+import { type Product } from "@/types/auth";
+import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 
 const Products = () => {
-  const [products, setProducts] = useState<Product[]>(mockProducts);
+  const { authState: { user } } = useAuth();
+  const [products, setProducts] = useState<Product[]>(mockProducts.map(p => ({
+    ...p,
+    company_id: "1",
+    created_by: "1"
+  })));
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -68,7 +75,7 @@ const Products = () => {
     if (editingProduct) {
       // Update existing product
       setProducts(products.map(p => 
-        p.id === editingProduct.id ? { ...editingProduct, ...productData } : p
+        p.id === editingProduct.id ? { ...editingProduct, ...productData, in_stock: productData.in_stock ?? editingProduct.in_stock } : p
       ));
       toast({
         title: "Product Updated",
@@ -85,6 +92,8 @@ const Products = () => {
         tags: productData.tags || [],
         stock: productData.stock!,
         in_stock: productData.in_stock ?? true,
+        company_id: user?.company_id || "1",
+        created_by: user?.id || "1",
       };
       setProducts([...products, newProduct]);
       toast({

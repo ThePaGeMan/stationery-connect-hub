@@ -122,9 +122,9 @@ const Customers = () => {
               location: customerData.location,
               budget: customerData.budget,
               interests: customerData.interests,
-              whatsapp_number: customerData.whatsapp_number,
+              whatsappNumber: customerData.whatsappNumber,
               group: customerData.group,
-              last_contact: customerData.last_contact,
+              lastContact: customerData.lastContact,
             })
             .eq('id', editingCustomer.id)
             .eq('created_by', editingCustomer.created_by)
@@ -146,9 +146,9 @@ const Customers = () => {
                 location: customerData.location,
                 budget: customerData.budget,
                 interests: customerData.interests,
-                whatsapp_number: customerData.whatsapp_number,
+                whatsappNumber: customerData.whatsappNumber,
                 group: customerData.group,
-                last_contact: customerData.last_contact,
+                lastContact: customerData.lastContact,
                 created_by: user?.id, // attach logged-in user
               },
             ])
@@ -252,21 +252,21 @@ const Customers = () => {
       ),
     },
     {
-      accessorKey: "whatsapp_number",
+      accessorKey: "whatsappNumber",
       header: "WhatsApp",
       cell: ({ row }) => (
         <div className="flex items-center">
           <Phone className="h-3 w-3 mr-2 text-success" />
-          <span className="text-sm">{row.original.whatsapp_number}</span>
+          <span className="text-sm">{row.original.whatsappNumber}</span>
         </div>
       ),
     },
     {
-      accessorKey: "last_contact",
+      accessorKey: "lastContact",
       header: "Last Contact",
       cell: ({ row }) => (
         <div className="text-sm text-muted-foreground">
-          {new Date(row.original.last_contact).toLocaleDateString()}
+          {new Date(row.original.lastContact).toLocaleDateString()}
         </div>
       ),
     },

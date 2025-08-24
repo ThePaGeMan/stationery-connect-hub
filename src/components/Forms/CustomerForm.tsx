@@ -24,10 +24,10 @@ const CustomerForm = ({ customer, onSubmit, onCancel , loading}: CustomerFormPro
     name: customer?.name || "",
     location: customer?.location || "",
     budget: customer?.budget || 0,
-    whatsapp_number: customer?.whatsapp_number || "",
+    whatsappNumber: customer?.whatsappNumber || "",
     group: customer?.group || "Budget Buyers" as Customer["group"],
     interests: customer?.interests || [],
-    last_contact: customer?.last_contact || new Date().toISOString().split('T')[0],
+    lastContact: customer?.lastContact || new Date().toISOString().split('T')[0],
   });
   const [newInterest, setNewInterest] = useState("");
 
@@ -131,8 +131,8 @@ const CustomerForm = ({ customer, onSubmit, onCancel , loading}: CustomerFormPro
             <Label htmlFor="whatsappNumber">WhatsApp Number</Label>
             <Input
               id="whatsappNumber"
-              value={formData.whatsapp_number}
-              onChange={(e) => setFormData(prev => ({ ...prev, whatsapp_number: e.target.value }))}
+              value={formData.whatsappNumber}
+              onChange={(e) => setFormData(prev => ({ ...prev, whatsappNumber: e.target.value }))}
               placeholder="+91 XXXXX XXXXX"
               required
             />
@@ -143,8 +143,8 @@ const CustomerForm = ({ customer, onSubmit, onCancel , loading}: CustomerFormPro
             <Input
               id="lastContact"
               type="date"
-              value={formData.last_contact}
-              onChange={(e) => setFormData(prev => ({ ...prev, last_contact: e.target.value }))}
+              value={formData.lastContact}
+              onChange={(e) => setFormData(prev => ({ ...prev, lastContact: e.target.value }))}
               required
             />
           </div>
